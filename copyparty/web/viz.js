@@ -8,7 +8,7 @@
 	    if (can)
 	        return;
 	    can = mknod('canvas', 'viz');
-	    can.style.cssText = 'position:fixed;left:0;bottom:0;width:100%;height:128px;z-index:-1;pointer-events:none';
+            can.style.cssText = 'position:fixed;left:0;bottom:0;width:100%;height:128px;z-index:0;pointer-events:none';
 	    QS('body').appendChild(can);
 	    ctx = can.getContext('2d');
 	    resize();

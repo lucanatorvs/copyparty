@@ -11891,16 +11891,14 @@ var mpl = (function () {
 			'<a href="#" id="ac2flac" class="tgl btn" tt="' + L.mt_c2flac + '</a>' +
 			'<a href="#" id="ac2wav" class="tgl btn" tt="' + L.mt_c2wav + '</a>' +
 			'</div></div>'
-		) : '') +
-
-		'<div><h3>' + L.ml_tint + '</h3><div>' +
-		'<input type="text" id="pb_tint" value="0" ' + NOAC + ' style="width:2.4em" tt="' + L.mt_tint + '" />' +
-		'</div></div>' +
-
-'<div><h3 id="h_drc">' + L.ml_drc + '</h3><div id="audio_drc"></div></div>' +
-'<div><h3>' + L.ml_eq + '</h3><div id="audio_eq"></div></div>' +
-'<div><h3>' + L.ml_viz + '</h3><div id="audio_viz"></div></div>' +
-'');
+                ) : '') +
+                '<div><h3>' + L.ml_tint + '</h3><div>' +
+                '<input type="text" id="pb_tint" value="0" ' + NOAC + ' style="width:2.4em" tt="' + L.mt_tint + '" />' +
+                '</div></div>' +
+                '<div><h3 id="h_drc">' + L.ml_drc + '</h3><div id="audio_drc"></div></div>' +
+                '<div><h3>' + L.ml_eq + '</h3><div id="audio_eq"></div></div>' +
+                '<div><h3>' + L.ml_viz + '</h3><div id="audio_viz"></div></div>' +
+                '');
 
 	var r = {
 		"pb_mode": (sread('pb_mode', ['loop', 'next', 'stop']) || 'next').split('-')[0],
@@ -11987,35 +11985,35 @@ var mpl = (function () {
 		draw_pb_mode();
 	}
 
-	function set_tint() {
-		var tint = icfg_get('pb_tint', 0);
-		if (!tint)
-			ebi('barbuf').style.removeProperty('background');
-		else
-			ebi('barbuf').style.background = 'rgba(126,163,75,' + (tint / 100.0) + ')';
-	}
-		ebi('pb_tint').oninput = function (e) {
-			swrite('pb_tint', this.value);
+        function set_tint() {
+                var tint = icfg_get('pb_tint', 0);
+                if (!tint)
+                        ebi('barbuf').style.removeProperty('background');
+                else
+                        ebi('barbuf').style.background = 'rgba(126,163,75,' + (tint / 100.0) + ')';
+        }
+        ebi('pb_tint').oninput = function (e) {
+                swrite('pb_tint', this.value);
                 set_tint();
-};
-set_tint();
+        };
+        set_tint();
 
         var vsel = mknod('select');
         vsel.id = 'au_viz';
-		vsel.innerHTML = '<option value="off">' + (L.mv_off || 'off') + '</option>' +
-		'<option value="waterfall">' + (L.mv_water || 'waterfall') + '</option>' +
-		'<option value="bars">' + (L.mv_bars || 'spectrum') + '</option>';
-		        ebi('audio_viz').appendChild(vsel);
-		        var vcur = sread('au_viz') || 'off';
-		        vsel.value = vcur;
-		        vsel.onchange = function () {
-			                swrite('au_viz', this.value);
-		                if (window.viz)
-			                        window.viz.set(this.value == 'off' ? '' : this.value);
-			                afilt.apply();
-		};
+        vsel.innerHTML = '<option value="off">' + (L.mv_off || 'off') + '</option>' +
+                '<option value="waterfall">' + (L.mv_water || 'waterfall') + '</option>' +
+                '<option value="bars">' + (L.mv_bars || 'spectrum') + '</option>';
+        ebi('audio_viz').appendChild(vsel);
+        var vcur = sread('au_viz') || 'off';
+        vsel.value = vcur;
+        vsel.onchange = function () {
+                swrite('au_viz', this.value);
+                if (window.viz)
+                        window.viz.set(this.value == 'off' ? '' : this.value);
+                afilt.apply();
+        };
 
-r.acode = function (url) {
+        r.acode = function (url) {
 		var c = true,
 			cs = url.split('?')[0];
 
