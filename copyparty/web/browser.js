@@ -315,10 +315,15 @@ var Ls = {
 		"mt_xowa": "there are bugs in iOS preventing background playback using this format; please use caf or mp3 instead",
 		"mt_tint": "background level (0-100) on the seekbar$Nto make buffering less distracting",
 		"mt_eq": "enables the equalizer and gain control;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standard 100% volume (unmodified)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = standard stereo (unmodified)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% left-right crossfeed$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = vocal removal :^)$N$Nenabling the equalizer makes gapless albums fully gapless, so leave it on with all the values at zero (except width = 1) if you care about that",
-		"mt_drc": "enables the dynamic range compressor (volume flattener / brickwaller); will also enable EQ to balance the spaghetti, so set all EQ fields except for 'width' to 0 if you don't want it$N$Nlowers the volume of audio above THRESHOLD dB; for every RATIO dB past THRESHOLD there is 1 dB of output, so default values of tresh -24 and ratio 12 means it should never get louder than -22 dB and it is safe to increase the equalizer boost to 0.8, or even 1.8 with ATK 0 and a huge RLS like 90 (only works in firefox; RLS is max 1 in other browsers)$N$N(see wikipedia, they explain it much better)",
+                "mt_drc": "enables the dynamic range compressor (volume flattener / brickwaller); will also enable EQ to balance the spaghetti, so set all EQ fields except for 'width' to 0 if you don't want it$N$Nlowers the volume of audio above THRESHOLD dB; for every RATIO dB past THRESHOLD there is 1 dB of output, so default values of tresh -24 and ratio 12 means it should never get louder than -22 dB and it is safe to increase the equalizer boost to 0.8, or even 1.8 with ATK 0 and a huge RLS like 90 (only works in firefox; RLS is max 1 in other browsers)$N$N(see wikipedia, they explain it much better)",
 
-		"mb_play": "play",
-		"mm_hashplay": "play this audio file?",
+               "ml_viz": "visualizer",
+               "mv_off": "off",
+               "mv_water": "waterfall",
+               "mv_bars": "spectrum",
+
+                "mb_play": "play",
+                "mm_hashplay": "play this audio file?",
 		"mm_m3u": "press <code>Enter/OK</code> to Play\npress <code>ESC/Cancel</code> to Edit",
 		"mp_breq": "need firefox 82+ or chrome 73+ or iOS 15+",
 		"mm_bload": "now loading...",
@@ -910,6 +915,10 @@ var Ls = {
 		"ml_tint": "tint",
 		"ml_eq": "audio equalizer (tonejustering)",
 		"ml_drc": "compressor (volum-utjevning)",
+		"ml_viz": "visualisator",
+		"mv_off": "av",
+		"mv_water": "fossefall",
+		"mv_bars": "spekter",
 
 		"mt_loop": "spill den samme sangen om og om igjen\">🔁",
 		"mt_one": "spill kun én sang\">1️⃣",
@@ -11882,15 +11891,14 @@ var mpl = (function () {
 			'<a href="#" id="ac2flac" class="tgl btn" tt="' + L.mt_c2flac + '</a>' +
 			'<a href="#" id="ac2wav" class="tgl btn" tt="' + L.mt_c2wav + '</a>' +
 			'</div></div>'
-		) : '') +
-
-		'<div><h3>' + L.ml_tint + '</h3><div>' +
-		'<input type="text" id="pb_tint" value="0" ' + NOAC + ' style="width:2.4em" tt="' + L.mt_tint + '" />' +
-		'</div></div>' +
-
-		'<div><h3 id="h_drc">' + L.ml_drc + '</h3><div id="audio_drc"></div></div>' +
-		'<div><h3>' + L.ml_eq + '</h3><div id="audio_eq"></div></div>' +
-		'');
+                ) : '') +
+                '<div><h3>' + L.ml_tint + '</h3><div>' +
+                '<input type="text" id="pb_tint" value="0" ' + NOAC + ' style="width:2.4em" tt="' + L.mt_tint + '" />' +
+                '</div></div>' +
+                '<div><h3 id="h_drc">' + L.ml_drc + '</h3><div id="audio_drc"></div></div>' +
+                '<div><h3>' + L.ml_eq + '</h3><div id="audio_eq"></div></div>' +
+                '<div><h3>' + L.ml_viz + '</h3><div id="audio_viz"></div></div>' +
+                '');
 
 	var r = {
 		"pb_mode": (sread('pb_mode', ['loop', 'next', 'stop']) || 'next').split('-')[0],
@@ -11977,20 +11985,35 @@ var mpl = (function () {
 		draw_pb_mode();
 	}
 
-	function set_tint() {
-		var tint = icfg_get('pb_tint', 0);
-		if (!tint)
-			ebi('barbuf').style.removeProperty('background');
-		else
-			ebi('barbuf').style.background = 'rgba(126,163,75,' + (tint / 100.0) + ')';
-	}
-	ebi('pb_tint').oninput = function (e) {
-		swrite('pb_tint', this.value);
-		set_tint();
-	};
-	set_tint();
+        function set_tint() {
+                var tint = icfg_get('pb_tint', 0);
+                if (!tint)
+                        ebi('barbuf').style.removeProperty('background');
+                else
+                        ebi('barbuf').style.background = 'rgba(126,163,75,' + (tint / 100.0) + ')';
+        }
+        ebi('pb_tint').oninput = function (e) {
+                swrite('pb_tint', this.value);
+                set_tint();
+        };
+        set_tint();
 
-	r.acode = function (url) {
+        var vsel = mknod('select');
+        vsel.id = 'au_viz';
+        vsel.innerHTML = '<option value="off">' + (L.mv_off || 'off') + '</option>' +
+                '<option value="waterfall">' + (L.mv_water || 'waterfall') + '</option>' +
+                '<option value="bars">' + (L.mv_bars || 'spectrum') + '</option>';
+        ebi('audio_viz').appendChild(vsel);
+        var vcur = sread('au_viz') || 'off';
+        vsel.value = vcur;
+        vsel.onchange = function () {
+                swrite('au_viz', this.value);
+                if (window.viz)
+                        window.viz.set(this.value == 'off' ? '' : this.value);
+                afilt.apply();
+        };
+
+        r.acode = function (url) {
 		var c = true,
 			cs = url.split('?')[0];
 
